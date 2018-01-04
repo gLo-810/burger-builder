@@ -8,6 +8,7 @@ import axios from '../../../axios-orders';
 import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import * as actions from '../../../store/actions/index';
+import {checkValidity} from '../../../shared/utility';
 
 class ContactData extends Component {
   state = {
@@ -107,31 +108,30 @@ class ContactData extends Component {
     const order = {
       ingredients: this.props.ings,
       price: this.props.price,
-      orderData: formData
+      orderData: formData,
+      userId: this.props.userId
     }
 
     this.props.onOrderBurger(order, this.props.token);
   }
 
   inputChangedHandler = (event, inputIdentifier) => {
-    const updatedOrderForm = {
-      ...this.state.orderForm
-    };
-    const updatedFormElement = {
-      ...updatedOrderForm[inputIdentifier]
-    };
-    updatedFormElement.value = event.target.value;
-    updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
-    updatedFormElement.touched = true;
-    updatedOrderForm[inputIdentifier] = updatedFormElement;
+      const updatedOrderForm = {
+          ...this.state.orderForm
+      };
+      const updatedFormElement = {
+          ...updatedOrderForm[inputIdentifier]
+      };
+      updatedFormElement.value = event.target.value;
+      updatedFormElement.valid = checkValidity(updatedFormElement.value, updatedFormElement.validation);
+      updatedFormElement.touched = true;
+      updatedOrderForm[inputIdentifier] = updatedFormElement;
 
-    let formIsValid = true;
-    for (let inputIdentifier in updatedOrderForm) {
-      formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
-    }
-
-
-    this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
+      let formIsValid = true;
+      for (let inputIdentifier in updatedOrderForm) {
+          formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
+      }
+      this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
   }
 
   checkValidity(value, rules) {
@@ -197,7 +197,8 @@ const mapStateToProps = state => {
     ings: state.burgerBuilder.ingredients,
     price: state.burgerBuilder.totalPrice,
     loading: state.order.loading,
-    token: state.auth.token
+    token: state.auth.token,
+    userId: state.auth.userId
   }
 }
 
